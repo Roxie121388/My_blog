@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/client";
@@ -13,7 +13,11 @@ const LoginForm = () => {
   const [message, setMessage] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const router = useRouter();
-  const { initialize } = useUserStore();
+  const { initialize, clearUser } = useUserStore();
+
+  useEffect(() => {
+    clearUser();
+  }, []);
 
   const handleGithubLogin = async () => {
     setIsLoading(true);
@@ -45,17 +49,28 @@ const LoginForm = () => {
 
       if (isSignUp) {
         // 注册
-        const { error: signUpError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
-          },
-        });
+        const { error: signUpError, data: signUpData } =
+          await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            },
+          });
 
         if (signUpError) throw signUpError;
 
         setMessage("注册成功！请检查您的邮箱以验证账户。");
+
+        // 检查upsert操作是否成功
+        const { data: userProfile, error: profileError } = await supabase
+          .from("user_profiles")
+          .upsert({
+            username: signUpData.user?.email,
+            id: signUpData.user?.id,
+          })
+          .select();
+        if (profileError) throw profileError;
         setEmail("");
         setPassword("");
       } else {

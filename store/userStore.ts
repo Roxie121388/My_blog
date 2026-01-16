@@ -3,8 +3,6 @@ import { UserState, User, UserProfile } from "@/types/user"
 import { createClient } from "@/utils/supabase/client"
 import { persist, createJSONStorage } from "zustand/middleware"
 
-
-
 interface UserStore extends UserState {
     setUser: (user: User | null) => void
     setProfile: (profile: UserProfile | null) => void
@@ -36,7 +34,6 @@ export const useUserStore = create<UserStore>()(
       setLoading: (isLoading) => {
         set({ isLoading })
       },
-
       clearUser: () => {
         set({
           user: null,

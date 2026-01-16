@@ -6,14 +6,14 @@ export default function Footer() {
           <p>
             &copy; {new Date().getFullYear()} 小破站. ---All rights reserved.
           </p>
-          <p className="mt-2 text-sm">
+          <span className="mt-2 text-sm">
             <img
               src="/beian.png"
               alt="2025216285号-1"
               className="w-4 h-4 inline-block mr-1"
             />
             <p className="inline-block">2025216285号-1</p>
-          </p>
+          </span>
         </div>
       </div>
     </footer>

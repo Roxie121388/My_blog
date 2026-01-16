@@ -1,9 +1,38 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect } from "react";
 import UserAvatar from "./UserAvatar";
+import { useIsLoading } from "@/store/userStore";
+import { createClient } from "@/utils/supabase/client";
+import { useUserStore } from "@/store/userStore";
 
 const Header = () => {
   const linkClass = "text-blue-500 hover:text-blue-600 transition-colors";
+  const isLoading = useIsLoading();
+
+  const setUser = useUserStore((state) => state.setUser);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const token = url.searchParams.get("token");
+    if (token) {
+      const supabase = createClient();
+      supabase.auth.setSession({
+        access_token: token,
+        refresh_token: url.searchParams.get("refresh_token") || "",
+      });
+      // 从URL中删除token和refresh_token参数
+      url.searchParams.delete("token");
+      url.searchParams.delete("refresh_token");
+      window.history.replaceState({}, document.title, url.toString());
+
+      // 从Supabase获取用户信息
+      supabase.auth.getUser().then((res) => {
+        setUser(res.data.user);
+        return res.data.user;
+      });
+    }
+  }, []);
 
   return (
     <header
@@ -28,12 +57,11 @@ const Header = () => {
             </Link>
 
             {/* 用户信息或登录按钮 */}
-            <UserAvatar />
-            {/* {isLoading ? (
+            {isLoading ? (
               <div className="w-20 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
             ) : (
-              <UserAvatar isHero={isHero} />
-            )} */}
+              <UserAvatar />
+            )}
           </div>
         </div>
       </nav>
