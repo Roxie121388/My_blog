@@ -3,13 +3,15 @@ import PostCard from "@/component/PostCard";
 import ThreeBackground from "@/component/ThreeBackground";
 
 export const revalidate = 60; // 每60秒重新验证
-const supabase = await createClient();
 
-// 获取已发布的文章
-const { data: posts, error } = await supabase
-  .from("posts")
-  .select(
-    `
+export default async function Home() {
+  const supabase = await createClient();
+
+  // 获取已发布的文章
+  const { data: posts, error } = await supabase
+    .from("posts")
+    .select(
+      `
       *,
       author:user_profiles!fk_user_profiles_posts (
         username,
@@ -17,17 +19,16 @@ const { data: posts, error } = await supabase
         avatar_url
       )
     `
-  )
-  .eq("published", true)
-  .eq("is_public", true)
-  .order("created_at", { ascending: false })
-  .limit(10);
+    )
+    .eq("published", true)
+    .eq("is_public", true)
+    .order("created_at", { ascending: false })
+    .limit(10);
 
-if (error) {
-  console.error("Error fetching posts:", error);
-}
+  if (error) {
+    console.error("Error fetching posts:", error);
+  }
 
-export default function Home() {
   return (
     <div className="min-h-screen relative">
       <div className="flex flex-col lg:flex-row gap-8">

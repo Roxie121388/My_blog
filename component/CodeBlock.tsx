@@ -144,6 +144,7 @@ export default function CodeBlock({
         className="!mt-0 !rounded-t-none !rounded-b-lg overflow-x-auto"
         showLineNumbers={true}
         wrapLines={true}
+        wrapLongLines={true}
         lineProps={{
           style: {
             whiteSpace: "pre-wrap",
