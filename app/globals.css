@@ -1,26 +1,268 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #008aff;
+  --color-primary-foreground: #020817;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --primary: #008aff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #008aff;
   }
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
+  background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* 移动端抽屉滑入动画 */
+  @keyframes slide-up {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+}
+
+/* 文章富文本样式优化 */
+@layer components {
+  /* 标题样式 */
+  .prose h1 {
+    @apply text-4xl font-extrabold mt-8 mb-6 text-gray-700;
+    @apply border-b-4 border-primary pb-3;
+  }
+  
+  .prose h2 {
+    @apply text-3xl font-bold mt-8 mb-4 text-gray-700;
+    @apply border-b-2 border-gray-300 dark:border-gray-600 pb-2;
+  }
+  
+  .prose h3 {
+    @apply text-2xl font-semibold mt-6 mb-3 text-gray-700;
+    @apply relative pl-4;
+  }
+  
+  .prose h3::before {
+    @apply content-[''] absolute left-0 top-1 bottom-1 w-1 bg-primary rounded;
+  }
+  
+  .prose h4 {
+    @apply text-xl font-semibold mt-6 mb-3 text-gray-700;
+  }
+  
+  .prose h5 {
+    @apply text-lg font-semibold mt-4 mb-2 text-gray-700;
+  }
+  
+  .prose h6 {
+    @apply text-base font-semibold mt-4 mb-2 text-gray-700;
+  }
+
+  /* 表格样式 */
+  .prose table {
+    @apply w-full border-collapse my-6 text-sm;
+    @apply shadow-lg rounded-lg overflow-hidden;
+  }
+  
+  .prose thead {
+    @apply bg-primary text-primary-foreground;
+  }
+  
+  .prose thead th {
+    @apply px-6 py-4 text-left font-semibold uppercase tracking-wider;
+    @apply border-b-2 border-primary;
+  }
+  
+  .prose tbody tr {
+    @apply border-b border-gray-200;
+    @apply hover:bg-black transition-colors;
+  }
+  
+  .prose tbody tr:nth-child(even) {
+    @apply bg-gray-700;
+  }
+  
+  .prose tbody td {
+    @apply px-6 py-4 text-gray-700;
+  }
+  
+  .prose tbody tr:last-child {
+    @apply border-b-0;
+  }
+
+  /* 引用块样式 */
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 py-2 my-6;
+    @apply bg-primary/10 rounded-r-lg;
+    @apply italic text-gray-700;
+  }
+
+  /* 链接样式 */
+  .prose a {
+    /* 这里的 text-primary 如果太亮看不清，可以考虑加个文字阴影或者深色底色，但目前先保持 primary */
+    @apply text-primary underline decoration-2 underline-offset-2;
+    @apply hover:opacity-80 transition-opacity;
+  }
+
+  /* 列表样式 - Obsidian 风格 */
+  .prose ul {
+    @apply list-none my-4 space-y-1;
+    @apply pl-0;
+  }
+  
+  .prose ol {
+    @apply list-none my-4 space-y-1;
+    @apply pl-0;
+    counter-reset: item;
+  }
+  
+  .prose li {
+    @apply text-gray-700 leading-relaxed;
+    @apply relative pl-6;
+  }
+  
+  /* 无序列表项目符号 */
+  .prose ul > li {
+    @apply relative;
+  }
+  
+  .prose ul > li::before {
+    content: '';
+    @apply absolute left-0 top-[0.6rem] w-1.5 h-1.5 rounded-full;
+    @apply bg-primary;
+  }
+  
+  /* 垂直连接线 */
+  .prose ul > li::after {
+    content: '';
+    @apply absolute left-[calc(0.1875rem-1px)] top-[1.2rem] bottom-[-0.5rem] w-[2px];
+    @apply bg-gray-300;
+  }
+  
+  /* 最后一个列表项不显示连接线 */
+  .prose ul > li:last-child::after {
+    @apply hidden;
+  }
+  
+  /* 有序列表序号 */
+  .prose ol > li {
+    counter-increment: item;
+    @apply relative;
+  }
+  
+  .prose ol > li::before {
+    content: counter(item) '.';
+    @apply absolute left-0 top-0 font-semibold;
+    @apply text-primary;
+  }
+  
+  /* 有序列表垂直连接线 */
+  .prose ol > li::after {
+    content: '';
+    @apply absolute left-[0.1875rem] top-[1.2em] bottom-[-0.25rem] w-[2px];
+    @apply bg-gray-300;
+  }
+  
+  .prose ol > li:last-child::after {
+    @apply hidden;
+  }
+  
+  /* 嵌套列表 */
+  .prose ul ul,
+  .prose ul ol,
+  .prose ol ul,
+  .prose ol ol {
+    @apply mt-2 mb-2;
+  }
+  
+  /* 嵌套列表使用不同的项目符号 */
+  .prose ul ul > li::before {
+    @apply w-1 h-1 bg-gray-100;
+  }
+  
+  .prose ul ul ul > li::before {
+    @apply w-1 h-1 bg-gray-100;
+    @apply rounded-none;
+  }
+
+  /* 水平分割线 */
+  .prose hr {
+    @apply my-8 border-t-2 border-gray-300;
+  }
+
+  /* 图片样式 */
+  .prose img {
+    @apply rounded-lg shadow-md my-6 mx-auto;
+  }
+
+  /* 段落间距 */
+  .prose p {
+    @apply my-4 leading-relaxed text-gray-700;
+  }
+
+  /* 强调文本 */
+  .prose strong {
+    @apply font-bold text-gray-700;
+  }
+  
+  .prose em {
+    @apply italic text-gray-700;
+  }
+}
+
+/* WangEditor 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .w-e-text-container {
+    background-color: #1f2937 !important;
+  }
+  
+  .w-e-text-container [data-slate-editor] {
+    color: #e5e7eb !important;
+  }
+  
+  .w-e-text-placeholder {
+    color: #9ca3af !important;
+  }
+  
+  .w-e-toolbar {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+  }
+  
+  .w-e-bar-item button {
+    color: #e5e7eb !important;
+  }
+  
+  .w-e-bar-item button:hover {
+    background-color: #4b5563 !important;
+  }
+  
+  .w-e-drop-panel {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #e5e7eb !important;
+  }
 }

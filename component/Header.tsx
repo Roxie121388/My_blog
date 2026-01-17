@@ -10,13 +10,14 @@ const Header = () => {
   const linkClass = "text-blue-500 hover:text-blue-600 transition-colors";
   const isLoading = useIsLoading();
 
-  const setUser = useUserStore((state) => state.setUser);
+  const initialize = useUserStore((state) => state.initialize);
 
   useEffect(() => {
     const url = new URL(window.location.href);
     const token = url.searchParams.get("token");
+
+    const supabase = createClient();
     if (token) {
-      const supabase = createClient();
       supabase.auth.setSession({
         access_token: token,
         refresh_token: url.searchParams.get("refresh_token") || "",
@@ -25,13 +26,28 @@ const Header = () => {
       url.searchParams.delete("token");
       url.searchParams.delete("refresh_token");
       window.history.replaceState({}, document.title, url.toString());
-
-      // 从Supabase获取用户信息
-      supabase.auth.getUser().then((res) => {
-        setUser(res.data.user);
-        return res.data.user;
-      });
     }
+    initialize();
+
+    // // 从Supabase获取用户信息
+    // supabase.auth
+    //   .getUser()
+    //   .then((res) => {
+    //     setUser(res.data.user);
+    //     supabase
+    //       .from("user_profiles")
+    //       .select("*")
+    //       .eq("id", res.data.user?.id)
+    //       .single()
+    //       .then((res) => {
+    //         setProfile(res.data);
+    //       });
+    //     return res.data.user;
+    //   })
+    //   .catch((error) => {
+    //     // TODO: 处理Token过期的情况
+    //     console.error("获取用户信息失败:", error);
+    //   });
   }, []);
 
   return (

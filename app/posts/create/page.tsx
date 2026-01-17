@@ -66,18 +66,18 @@ const CreatePostPage = () => {
     try {
       const supabase = createClient();
 
-      // // 检查 slug 是否已存在
-      // const { data: existingPost } = await supabase
-      //   .from("posts")
-      //   .select("id")
-      //   .eq("slug", slug)
-      //   .single();
+      // 检查 slug 是否已存在
+      const { data: existingPost } = await supabase
+        .from("posts")
+        .select("id")
+        .eq("slug", slug)
+        .single();
 
-      // if (existingPost) {
-      //   setError("文章别名已存在，请使用其他别名");
-      //   setIsSubmitting(false);
-      //   return;
-      // }
+      if (existingPost) {
+        setError("文章别名已存在，请使用其他别名");
+        setIsSubmitting(false);
+        return;
+      }
 
       var turndownService = new TurndownService();
       var markdown = turndownService.turndown(content);
